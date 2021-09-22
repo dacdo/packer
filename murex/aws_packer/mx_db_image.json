@@ -1,0 +1,131 @@
+{
+  "variables": {
+    "aws_access_key": "{{env `aws_access_key_id`}}",
+    "aws_secret_key": "{{env `aws_secret_access_key`}}",
+    "region": "ap-southeast-2",
+    "vpc_id": "vpc-0b2d9cb4cb29fad97",
+    "subnet_id": "subnet-0ecc61fa6abede486",
+
+    "ssh_bastion_host": "{{env `packer_ssh_bastion_host`}}",
+    "ssh_bastion_username": "{{env `packer_ssh_bastion_username`}}",
+    "ssh_bastion_password": "{{env `packer_ssh_bastion_password`}}",
+    "ssh_bastion_private_key_file": "{{env `packer_ssh_bastion_private_key_file`}}",
+
+    "ami_name": "mx_db_image-{{isotime \"2006-01-02\"}}-{{timestamp}}",
+    "rpm_file": "db.rpms.txt",
+    "rclocal_file": "dbrclocalfile.txt",
+    "securitylimits": "dbseclimits.txt",
+    "chefrpm": "chefdk-2.5.3-1.el7.x86_64.rpm",
+    "vmbanner": "vmbanner.txt"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "{{user `region`}}",
+      "vpc_id": "{{user `vpc_id`}}",
+      "subnet_id": "{{user `subnet_id`}}",
+
+      "ami_name": "{{user `ami_name`}}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "RHEL-7.4_HVM-*",
+          "root-device-type": "ebs"
+        },
+        "owners": [
+          "309956199498"
+        ],
+        "most_recent": true
+      },
+      "instance_type": "c5.large",
+      "associate_public_ip_address": false,
+      "ena_support": true,
+
+      "communicator": "ssh",
+      "ssh_username": "ec2-user",
+      "ssh_bastion_host": "{{user `ssh_bastion_host`}}",
+      "ssh_bastion_username": "{{user `ssh_bastion_username`}}",
+      "ssh_bastion_password": "{{user `ssh_bastion_password`}}",
+      "ssh_bastion_private_key_file": "{{user `ssh_bastion_private_key_file`}}",
+
+      "tags": {
+        "Name": "{{user `ami_name`}}",
+        "ManagedBy": "Packer"
+      },
+      "run_tags": {
+        "Name": "{{user `ami_name`}}",
+        "ManagedBy": "Packer"
+      },
+      "run_volume_tags": {
+        "Name": "{{user `ami_name`}}",
+        "ManagedBy": "Packer"
+      },
+      "snapshot_tags": {
+        "Name": "{{user `ami_name`}}",
+        "ManagedBy": "Packer"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "destination": "/tmp/{{user `rpm_file`}}",
+      "source": "{{user `rpm_file`}}",
+      "type": "file"
+    },   
+    {
+      "destination": "/tmp/{{user `rclocal_file`}}",
+      "source": "{{user `rclocal_file`}}",
+      "type": "file"
+    },
+    {
+      "destination": "/tmp/{{user `securitylimits`}}",
+      "source": "{{user `securitylimits`}}",
+      "type": "file"
+    },
+    {
+      "destination": "/tmp/{{user `chefrpm`}}",
+      "source": "{{user `chefrpm`}}",
+      "type": "file"
+    },
+    {
+      "destination": "/tmp/{{user `vmbanner`}}",
+      "source": "{{user `vmbanner`}}",
+      "type": "file"
+    },
+    {
+      "execute_command": "echo '' | sudo -S su - root -c '{{ .Path }}'",
+      "inline": [
+        "export http_proxy=http://proxy.services.nkc40.net:3128",
+        "export https_proxy=$http_proxy",
+        "cd /tmp",
+        "yum -y install zip",
+        "yum -y install unzip",
+        "yum -y install nvme-cli",
+        "yum -y install dos2unix",
+        "dos2unix '{{user `rpm_file`}}'",
+        "curl -O https://bootstrap.pypa.io/get-pip.py",
+        "python get-pip.py --user",
+        "export PATH=\"$PATH:/root/.local/bin\"",
+        "curl \"https://s3.amazonaws.com/aws-cli/awscli-bundle.zip\" -o \"awscli-bundle.zip\"",
+        "unzip awscli-bundle.zip",
+        "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws",
+        "export PATH=~/bin:$PATH",
+        "aws --version",
+        "yum -y install $(cat '{{user `rpm_file`}}')",
+        "yum -y install '{{user `chefrpm`}}'",
+        "chmod +x /etc/rc.d/rc.local",
+        "systemctl enable rc-local.service",
+        "systemctl start rc-local.service",
+        "cat '{{user `rclocal_file`}}' >> /etc/rc.local",
+        "cat '{{user `securitylimits`}}'  >> /etc/security/limits.conf",
+        "/bin/timedatectl set-timezone 'Australia/Sydney'",
+        "cat '{{user `vmbanner`}}' >> /etc/motd"
+      ],
+      "inline_shebang": "/bin/sh -xe",
+      "type": "shell",
+      "skip_clean": true
+    }
+  ]
+}

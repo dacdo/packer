@@ -1,0 +1,5 @@
+*               soft    core          unlimited
+sybase          hard    nofile          40000
+sybase          soft    nofile          40000
+sybase          hard    nproc         unlimited
+sybase          soft    nproc         unlimited

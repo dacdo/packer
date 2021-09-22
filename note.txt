@@ -2,3 +2,5 @@ packer init .
 packer fmt .
 packer build aws-ubuntu.pkr.hcl
 
+packer hcl2_upgrade -with-annotations docker-ubuntu.json
+packer build mx_db_image.json
