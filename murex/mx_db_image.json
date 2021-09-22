@@ -77,6 +77,8 @@
         "yum -y install nvme-cli",
         "yum -y install dos2unix",
         "yum -y install $(cat '{{user `rpm_file`}}')",
+        "curl -O https://packages.chef.io/files/stable/chefdk/4.13.3/el/7/chefdk-4.13.3-1.el7.x86_64.rpm",
+        "yum -y install '{{user `chefrpm`}}'",
         "yum -y install python3",
         "mv /usr/bin/python /usr/bin/python2",
         "cp /usr/bin/python3 /usr/bin/python",
