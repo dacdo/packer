@@ -1,7 +1,7 @@
 {
   "variables": {
     "region": "us-west-2",
-    "ami_name": "mx_db_image",
+    "ami_name": "mx_volume_image",
     "rpm_file": "db.rpms.txt",
     "rclocal_file": "dbrclocalfile.txt",
     "securitylimits": "dbseclimits.txt",
@@ -13,17 +13,7 @@
       "type": "amazon-ebs",
       "region": "{{user `region`}}",
       "ami_name": "{{user `ami_name`}}",
-      "source_ami_filter": {
-        "filters": {
-          "virtualization-type": "hvm",
-          "name": "RHEL-7.9_HVM-*",
-          "root-device-type": "ebs"
-        },
-        "owners": [
-          "309956199498"
-        ],
-        "most_recent": true
-      },
+      "source_ami": "ami-1607ba6e",
       "instance_type": "t2.micro",
       "associate_public_ip_address": false,
       "ena_support": true,
@@ -80,21 +70,8 @@
         "dos2unix '{{user `rpm_file`}}'",
         "curl -O https://packages.chef.io/files/stable/chefdk/4.13.3/el/7/chefdk-4.13.3-1.el7.x86_64.rpm",
         "yum -y install '{{user `chefrpm`}}'",
-        "chmod +x /etc/rc.d/rc.local",
-        "systemctl enable rc-local.service",
-        "systemctl start rc-local.service",
-        "cat '{{user `rclocal_file`}}' >> /etc/rc.local",
-        "cat '{{user `securitylimits`}}'  >> /etc/security/limits.conf",
         "/bin/timedatectl set-timezone 'Australia/Sydney'",
-        "cat '{{user `vmbanner`}}' >> /etc/motd",
-        "yum -y install python3",
-        "curl \"https://s3.amazonaws.com/aws-cli/awscli-bundle.zip\" -o \"awscli-bundle.zip\"",
-        "unzip awscli-bundle.zip",
-        "cd /tmp/awscli-bundle",
-        "sed -i 's/env python/env python3/' install",
-        "cd /tmp",
-        "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws",
-        "export PATH=~/bin:$PATH"
+        "cat '{{user `vmbanner`}}' >> /etc/motd"
       ],
       "inline_shebang": "/bin/sh -xe",
       "type": "shell",
