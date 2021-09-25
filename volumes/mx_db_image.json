@@ -6,7 +6,9 @@
     "rclocal_file": "dbrclocalfile.txt",
     "securitylimits": "dbseclimits.txt",
     "chefrpm": "chefdk-4.13.3-1.el7.x86_64.rpm",
-    "vmbanner": "vmbanner.txt"
+    "vmbanner": "vmbanner.txt",
+    "root_volume_size_Gi": "20",
+    "attached_volume_size_Gi": "50"
   },
   "builders": [
     {
@@ -24,6 +26,22 @@
         ],
         "most_recent": true
       },
+      "launch_block_device_mappings": [
+        {
+          "device_name": "/dev/xvda",
+          "volume_size": "{{user `root_volume_size_Gi`}}",
+          "volume_type": "gp2",
+          "delete_on_termination": true
+        }
+      ],
+      "ami_block_device_mappings": [
+        {
+          "device_name": "/dev/sdb",
+          "volume_size": "{{user `attached_volume_size_Gi`}}",
+          "volume_type": "gp2",
+          "delete_on_termination": true
+        }
+      ],
       "instance_type": "t2.micro",
       "associate_public_ip_address": false,
       "ena_support": true,
