@@ -19,8 +19,11 @@ lsblk
 file -s /dev/xvdb
 mkfs -t xfs /dev/xvdb
 file -s /dev/xvdb
-mkdir /dac
-mount /dev/xvdb /dac
+
+#!/bin/bash
+mkfs -t xfs /dev/xvdb
+mkdir /mxlocal
+mount /dev/xvdb /mxlocal
 
 cd /dac
 vi dactest.txt
