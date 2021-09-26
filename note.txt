@@ -20,7 +20,7 @@ file -s /dev/xvdb
 mkfs -t xfs /dev/xvdb
 file -s /dev/xvdb
 
-#!/bin/bash
+#! /bin/bash
 mkfs -t xfs /dev/xvdb
 mkdir /mxlocal
 mount /dev/xvdb /mxlocal
@@ -49,3 +49,19 @@ df -k
 cd /
 umount /dac
 
+efs
+sudo yum -y install amazon-efs-utils
+sudo mkdir /mnt/efs
+sudo mount -t efs fs-482cd170:/ /mnt/efs
+
+
+build from src
+sudo yum -y install git rpm-build make
+$ git clone https://github.com/aws/efs-utils
+$ cd efs-utils
+$ make rpm
+$ sudo yum -y install build/amazon-efs-utils*rpm
+
+sudo pip3 install botocore --upgrade
+sudo mkdir /mnt/efs
+sudo mount -t efs fs-63c61f65:/ /mnt/efs
