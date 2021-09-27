@@ -65,3 +65,22 @@ $ sudo yum -y install build/amazon-efs-utils*rpm
 sudo pip3 install botocore --upgrade
 sudo mkdir /mnt/efs
 sudo mount -t efs fs-63c61f65:/ /mnt/efs
+
+
+persitent mount
+get uuid:
+sudo blkid /dev/sda2
+sudo blkid /dev/xvdb
+/dev/xvdb: UUID="3356a254-8b26-450f-a648-d1c97eecf525" TYPE="xfs" 
+vi /etc/fstab
+add line
+UUID=3356a254-8b26-450f-a648-d1c97eecf525 /mxlocal xfs     defaults        0 0
+
+
+blkid /dev/xvdb |  awk '{print $2}' > /tmp/mx_tmp_fsfile
+sed -i 's/"//' /tmp/mx_tmp_fsfile
+sed -i 's/"/ \/mxlocal  xfs     defaults        0 0 /' /tmp/mx_tmp_fsfile
+cat /tmp/mx_tmp_fsfile >> /etc/fstab
+
+
+
