@@ -113,7 +113,9 @@
         "sed -i 's/env python/env python3/' install",
         "cd /tmp",
         "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws",
-        "export PATH=~/bin:$PATH"
+        "export PATH=~/bin:$PATH",
+        "curl -O https://bootstrap.pypa.io/get-pip.py",
+        "python3 get-pip.py --user"
       ],
       "inline_shebang": "/bin/sh -xe",
       "type": "shell",
