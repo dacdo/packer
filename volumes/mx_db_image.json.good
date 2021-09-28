@@ -8,7 +8,8 @@
     "chefrpm": "chefdk-4.13.3-1.el7.x86_64.rpm",
     "vmbanner": "vmbanner.txt",
     "root_volume_size_Gi": "20",
-    "attached_volume_size_Gi": "50"
+    "attached_io1_volume_size_Gi": "40",
+    "attached_gp2_volume_size_Gi": "50"
   },
   "builders": [
     {
@@ -38,8 +39,15 @@
       "ami_block_device_mappings": [
         {
           "device_name": "/dev/sdb",
-          "volume_size": "{{user `attached_volume_size_Gi`}}",
+          "volume_size": "{{user `attached_gp2_volume_size_Gi`}}",
           "volume_type": "gp2",
+          "delete_on_termination": true
+        },
+        {
+          "device_name": "/dev/sdh",
+          "volume_size": "{{user `attached_io1_volume_size_Gi`}}",
+          "volume_type": "io1",
+          "iops": "1000",
           "delete_on_termination": true
         }
       ],
@@ -113,7 +121,15 @@
         "sed -i 's/env python/env python3/' install",
         "cd /tmp",
         "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws",
-        "export PATH=~/bin:$PATH"
+        "export PATH=~/bin:$PATH",
+        "curl -O https://bootstrap.pypa.io/get-pip.py",
+        "python3 get-pip.py --user",
+        "yum -y install git rpm-build make",
+        "git clone https://github.com/aws/efs-utils",
+        "cd efs-utils",
+        "make rpm",
+        "yum -y install build/amazon-efs-utils*rpm",
+        "pip3 install botocore --upgrade"
       ],
       "inline_shebang": "/bin/sh -xe",
       "type": "shell",
