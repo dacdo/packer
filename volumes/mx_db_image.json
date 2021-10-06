@@ -1,7 +1,7 @@
 {
   "variables": {
     "region": "us-west-2",
-    "ami_name": "mx_volume_image",
+    "ami_name": "mx_volume_image-{{isotime \"2006-01-02\"}}-{{timestamp}}",
     "rpm_file": "db.rpms.txt",
     "rclocal_file": "dbrclocalfile.txt",
     "securitylimits": "dbseclimits.txt",
